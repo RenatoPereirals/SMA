@@ -1,0 +1,38 @@
+{
+    // Define o tamanho da tabulação para o projeto
+    "editor.tabSize": 4, // Define o tamanho da tabulação para o projeto
+    "files.exclude": {
+        // Exclui arquivos ou pastas do explorador
+        "bin": true,
+        "obj": true
+    },
+    "editor.formatOnSave": true, // Formata automaticamente ao salvar
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "always" // Organiza automaticamente os imports ao salvar
+    },
+    "markdownlint.config": {
+        "markdownlint.enable": true,
+        "MD003": {
+            "style": "atx_closed"
+        },
+        "MD007": {
+            "indent": 4
+        },
+        "no-hard-tabs": true,
+        "MD029": {
+            "style": "ordered"
+        },
+        "MD040": true,
+        "MD013": {
+            "line_length": 80
+        }
+    },
+    
+    "omnisharp.enableRoslynAnalyzers": true,
+    "omnisharp.autoStart": true,
+    "omnisharp.format.enable": true,
+    "csharp.format.enable": true,
+    "cSpell.words": [
+        "commitlint"
+    ] // Habilita formatação para C# }
+}

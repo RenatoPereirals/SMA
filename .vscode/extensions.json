@@ -1,3 +1,19 @@
-{ 
-  "recommendations": ["github.copilot"]
+{
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "ms-vscode-remote.remote-wsl",
+    "formulahendry.dotnet",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    "ms-dotnettools.vscodeintellicode-csharp",
+    "formulahendry.dotnet-test-explorer",
+    "github.vscode-github-actions",
+    "github.copilot-chat",
+    "github.vscode-pull-request-github",
+    "pkief.material-icon-theme",
+    "vscode-icons-team.vscode-icons",
+    "fernandoescolar.vscode-solution-explorer",
+    "patcx.vscode-nuget-gallery",
+    "jmrog.vscode-nuget-package-manager",
+    "streetsidesoftware.code-spell-checker"
+  ]
 }
