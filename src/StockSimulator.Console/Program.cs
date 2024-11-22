@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StockSimulator
+﻿namespace StockSimulator
 {
     class Program
     {

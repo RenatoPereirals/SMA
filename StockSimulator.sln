@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockSimulator", "src\StockSimulator.csproj", "{8087FCCB-7C80-43A1-A0EC-E1AC667B29FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockSimulator", "src\StockSimulator.Console\StockSimulator.csproj", "{8087FCCB-7C80-43A1-A0EC-E1AC667B29FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
