@@ -25,7 +25,7 @@ jobs:
               run: dotnet build --configuration Release StockSimulator.sln
 
             - name: Run application
-              run: dotnet run --project src/StockSimulator.csproj
+              run: dotnet run --project src/StockSimulator.Console/StockSimulator.csproj
 
     test:
         runs-on: ubuntu-latest
