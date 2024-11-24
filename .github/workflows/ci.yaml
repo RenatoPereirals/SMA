@@ -21,10 +21,10 @@ jobs:
             - name: Restore dependencies and build
               run:
                   |
-                  dotnet restore
-                  dotnet build --configuration Release
+                  dotnet restore StockSimulator.sln
+                  dotnet build --configuration Release StockSimulator.sln
 
-    test:
+    test-unit:
         runs-on: ubuntu-latest
 
         steps:
@@ -40,7 +40,22 @@ jobs:
               run: dotnet restore StockSimulator.sln
 
             - name: Run Unit Tests
-              run: dotnet test tests/StockSimulator.Tests.Unit/StockSimulator.Tests.Unit.csproj
+              run: dotnet test test/StockSimulator.Tests.Unit/StockSimulator.Tests.Unit.csproj
+
+    test-integration:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "8.0.x"
+
+            - name: Restore dependencies
+              run: dotnet restore StockSimulator.sln
 
             - name: Run Integration Tests
-              run: dotnet test tests/StockSimulator.Tests.Integration/StockSimulator.Tests.Integration.csproj
+              run: dotnet test test/StockSimulator.Tests.Integration/StockSimulator.Tests.Integration.csproj
