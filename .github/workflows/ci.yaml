@@ -25,7 +25,7 @@ jobs:
               run: dotnet build --configuration Release StockSimulator.sln
 
             - name: Run application
-              run: dotnet run --project src\StockSimulator.API\StockSimulator.API.csproj
+              run: dotnet run --project src/StockSimulator.API/StockSimulator.API.csproj
 
     test:
         runs-on: ubuntu-latest
@@ -40,11 +40,8 @@ jobs:
                   dotnet-version: "8.0.x"
 
             - name: Restore dependencies
-              run: dotnet restore
-              working-directory: ./test
+              run: dotnet restore StockSimulator.sln
 
             - name: Test
               id: test
-              run:
-                  |
-                  dotnet test
+              run: dotnet test StockSimulator.sln
