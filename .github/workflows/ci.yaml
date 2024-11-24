@@ -1,49 +1,46 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+            - name: Set up .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "8.0.x"
 
-      - name: Restore dependencies
-        run: dotnet restore StockSimulator.sln
+            - name: Restore dependencies and build
+              run:
+                  |
+                  dotnet restore
+                  dotnet build --configuration Release
 
-      - name: Build Solution
-        run: dotnet build --configuration Release StockSimulator.sln
+    test:
+        runs-on: ubuntu-latest
 
-      - name: Run Application
-        run: dotnet run --project src/StockSimulator.API/StockSimulator.API.csproj
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-  test:
-    runs-on: ubuntu-latest
+            - name: Set up .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "8.0.x"
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+            - name: Restore dependencies
+              run: dotnet restore StockSimulator.sln
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+            - name: Run Unit Tests
+              run: dotnet test tests/StockSimulator.Tests.Unit/StockSimulator.Tests.Unit.csproj
 
-      - name: Restore dependencies
-        run: dotnet restore StockSimulator.sln
-
-      - name: Run Unit Tests
-        run: dotnet test tests/StockSimulator.Tests.Unit/StockSimulator.Tests.Unit.csproj
-
-      - name: Run Integration Tests
-        run: dotnet test tests/StockSimulator.Tests.Integration/StockSimulator.Tests.Integration.csproj
+            - name: Run Integration Tests
+              run: dotnet test tests/StockSimulator.Tests.Integration/StockSimulator.Tests.Integration.csproj
