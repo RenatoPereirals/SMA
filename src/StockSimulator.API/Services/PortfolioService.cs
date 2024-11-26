@@ -7,9 +7,13 @@ namespace StockSimulator.API.Services
     {
         private readonly Portfolio portfolio = _portfolio ?? throw new ArgumentNullException(nameof(portfolio));
 
-        public void UpdateUserPortfolio(Transaction transaction)
+        public void UpdateUserPortfolio(User user)
         {
-            ArgumentNullException.ThrowIfNull(transaction);
+            if (user.Transactions == null || user.Transactions.Count == 0)
+                throw new InvalidOperationException("No transactions found for the user.");
+
+            var transaction = user.Transactions[user.Transactions.Count - 1];
+
             ArgumentNullException.ThrowIfNull(transaction.Stock);
 
             var quantity = transaction.Type.HasFlag(TransactionType.Buy)
