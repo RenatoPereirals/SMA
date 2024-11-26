@@ -33,6 +33,8 @@
     "omnisharp.format.enable": true,
     "csharp.format.enable": true,
     "cSpell.words": [
-        "commitlint"
-    ] // Habilita formatação para C# }
+        "commitlint",
+        "Swashbuckle",
+        "xunit"
+    ]
 }
