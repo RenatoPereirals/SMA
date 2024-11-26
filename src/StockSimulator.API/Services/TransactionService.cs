@@ -1,162 +1,102 @@
-
-using StockSimulator.API.API.Entities;
-using StockSimulator.API.DataStructures;
 using StockSimulator.API.Entities;
 using StockSimulator.API.Enums;
 
 namespace StockSimulator.API.Services;
 
-public class TransactionService(TransactionService _transactionService, StockService _stockService, User user)
+public class TransactionService(UserService userService,
+                                MarketService marketService)
 {
-    private readonly TransactionService _transactionService = _transactionService ?? throw new ArgumentNullException(nameof(_transactionService));
-    private readonly StockService _stockService = _stockService ?? throw new ArgumentNullException(nameof(_stockService));
-    private readonly User _user = user ?? throw new ArgumentNullException(nameof(user));
-    private readonly TransactionQueue _transactionQueue = new();
-    private readonly TransactionStack transactionStack = new();
-    private readonly TransactionBinarySearchTree transactionTree = new();
-    private readonly StockPriceDictionary stockPriceDictionary = new();
-    private readonly TransactionLinkedList transactionLinkedList = new();
+    private readonly UserService _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+    private readonly MarketService _marketService = marketService ?? throw new ArgumentNullException(nameof(marketService));
 
-    // Method to deposit money into the account
-    public void DepositMoneyInAccount(User user, decimal value)
+    public void DepositMoneyIntoUserAccount(User user, decimal amount)
     {
-        ArgumentNullException.ThrowIfNull(user, nameof(user));
-        ArgumentNullException.ThrowIfNull(value, nameof(value));
+        ValidateUserAndAmount(user, amount);
 
-        var balance = user.GetBalance(user);
-        var newBalance = balance + value;
-
-        if (balance < 0)
-            throw new InvalidOperationException("The balance cannot be negative.");
-
-        _transactionService.DepositMoneyInAccount(user, newBalance);
+        var transaction = new Transaction(TransactionType.Deposit, user, amount);
+        _userService.ApplyTransactionToUser(user.UserId, transaction);
     }
 
-    // Method to add a transaction
-    public void AddTransaction(Transaction transaction)
+    public bool WithdrawMoneyFromUserAccount(User user, decimal amount)
     {
-        _transactionQueue.EnqueueTransaction(transaction);
+        ValidateUserAndAmount(user, amount);
 
-        transactionStack.PushTransaction(transaction);
+        if (amount > user.Balance)
+            return false; // Insufficient funds
 
-        transactionTree.Insert(transaction);
-
-        stockPriceDictionary.AddOrUpdateStockPrice(transaction);
-
-        transactionLinkedList.AddTransaction(transaction);
-    }
-
-    // Process all transactions in the queue
-    public void ProcessAllTransactions()
-    {
-        _transactionQueue.ProcessTransactions();
-    }
-
-    // Undo the last transaction
-    public void UndoLastTransaction()
-    {
-        transactionStack.UndoTransaction();
-    }
-
-    // Get a transaction by timestamp
-    public Transaction GetTransactionByTimestamp(DateTime timestamp)
-    {
-        return transactionTree.Search(timestamp);
-    }
-
-    // Get all transactions for a specific stock
-    public decimal GetAllStockForPrice(string symbol)
-    {
-        return stockPriceDictionary.GetStockPrice(symbol);
-    }
-
-    // Get a summary of the transaction
-    public static void GetTransactionSummary(List<Transaction> transactions)
-    {
-        var total = transactions.Sum(t => t.TotalValue);
-        foreach (var transaction in transactions)
-        {
-            var stock = transaction.Stock;
-            Console.WriteLine($"{transaction.Timestamp}: {transaction.Type} {transaction.Quantity}" +
-                $" stock of {stock.Symbol} at {stock.Price:C} (Total: {total:C})");
-        }
-    }
-
-    // Method to execute a buy transaction
-    public Transaction ExecuteBuyTransaction(Transaction transaction)
-    {
-        ArgumentNullException.ThrowIfNull(transaction, "Transaction not found.");
-
-        if (IsValidTransaction(transaction))
-            throw new InvalidOperationException("This operation is invalid.");
-
-        var stock = transaction.Stock;
-        var quantity = transaction.Quantity;
-        decimal stockPrice = _stockService.GetStockPrice(stock);
-        decimal balance = user.GetBalance(user);
-
-        decimal totalValue = stockPrice * quantity;
-
-        if (balance >= totalValue)
-        {
-            balance -= totalValue;
-            _user.SetBalance(balance);
-
-            user.GetPortfolio(user).Add(stock);
-
-            return new Transaction(TransactionType.Buy, stock, quantity, user);
-        }
-        else
-            throw new Exception("Insufficient funds.");
-
-        throw new InvalidOperationException("This operation is invalid."); // If the transaction type is not Buy
-    }
-
-    // Method to execute a sell transaction
-    public Transaction ExecuteSellTransaction(Transaction transaction)
-    {
-        ArgumentNullException.ThrowIfNull(transaction, "Transaction not found.");
-
-        if (IsValidTransaction(transaction))
-            throw new InvalidOperationException("This operation is invalid.");
-
-        var stock = transaction.Stock;
-        var quantity = transaction.Quantity;
-        decimal stockPrice = _stockService.GetStockPrice(stock);
-        decimal balance = user.GetBalance(user);
-
-        decimal totalValue = stockPrice * quantity;
-
-        if (balance >= totalValue)
-        {
-            balance += totalValue;
-            _user.SetBalance(balance);
-
-            user.GetPortfolio(user).Remove(stock);
-
-            return new Transaction(TransactionType.Buy, stock, quantity, user);
-        }
-        else
-            throw new Exception("Insufficient funds.");
-
-        throw new InvalidOperationException("This operation is invalid."); // If the transaction type is not Sell
-    }
-
-    private bool IsValidTransaction(Transaction transaction)
-    {
-        ArgumentNullException.ThrowIfNull(transaction, "Transaction not found.");
-        ArgumentNullException.ThrowIfNull(transaction.Stock, "Stock not found.");
-        ArgumentNullException.ThrowIfNull(transaction.User, "User not found.");
-
-        var quantity = transaction.Quantity;
-        var transactionType = transaction.Type;
-
-        if (quantity <= 0)
-            throw new ArgumentException("The quantity of stocks must be greater than zero.");
-
-        if (transactionType != TransactionType.Buy && transactionType != TransactionType.Sell)
-            throw new InvalidOperationException("This operation is invalid.");
+        var transaction = new Transaction(TransactionType.Withdraw, user, amount);
+        _userService.ApplyTransactionToUser(user.UserId, transaction);
 
         return true;
+    }
+    public Transaction BuyStockForUser(User user, Stock stock, int quantity)
+    {
+        ValidateStockTransaction(user, stock, quantity);
+
+        var result = _marketService.BuyStockFromMarket(stock, quantity);
+
+        if (!result.IsSuccessful)
+        {
+            throw new InvalidOperationException(
+                $"{result.Message} Requested: {quantity}, Available: {result.AvailableQuantity}."
+            );
+        }
+
+        var transaction = new Transaction(TransactionType.Buy, stock, quantity, user);
+        _userService.ApplyTransactionToUser(user.UserId, transaction);
+
+        return transaction;
+    }
+
+    public Transaction SellStockForUser(User user, Stock stock, int quantity)
+    {
+        ValidateStockTransaction(user, stock, quantity);
+
+        var result = _marketService.SellStockToMarket(stock, quantity);
+
+        if (!result.IsSuccessful)
+        {
+            throw new InvalidOperationException();
+        }
+
+        var transaction = new Transaction(TransactionType.Sell, stock, quantity, user);
+        _userService.ApplyTransactionToUser(user.UserId, transaction);
+
+        return transaction;
+    }
+
+    public void GetTransactionSummary(List<Transaction> transactions)
+    {
+        if (transactions == null || transactions.Count == 0)
+            throw new ArgumentException("No transactions found.");
+
+        var transactionFormatters = new Dictionary<TransactionType, Func<Transaction, string>>
+        {
+            { TransactionType.Buy, t => $"{t.Timestamp} - {t.Type} {t.Quantity} {t.Stock!.Symbol} at {t.Stock.Price:C}" },
+            { TransactionType.Sell, t => $"{t.Timestamp} - {t.Type} {t.Quantity} {t.Stock!.Symbol} at {t.Stock.Price:C}" },
+            { TransactionType.Withdraw, t => $"{t.Timestamp} - {t.Type} {t.Amount:C}" },
+            { TransactionType.Deposit, t => $"{t.Timestamp} - {t.Type} {t.Amount:C}" }
+        };
+
+        foreach (var transaction in transactions)
+        {
+            if (transactionFormatters.TryGetValue(transaction.Type, out var formatter))
+            {
+                Console.WriteLine(formatter(transaction));
+            }
+        }
+    }
+
+    private void ValidateStockTransaction(User user, Stock stock, int quantity)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(stock);
+        if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero.");
+    }
+
+    private void ValidateUserAndAmount(User user, decimal amount)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        if (amount <= 0) throw new ArgumentException("Amount must be positive.");
     }
 }
