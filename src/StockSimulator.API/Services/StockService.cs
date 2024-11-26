@@ -2,12 +2,10 @@ using StockSimulator.API.Entities;
 
 namespace StockSimulator.API.Services;
 
-public class StockService(List<Stock> listStocks, User user)
+public class StockService(List<Stock> listStocks)
 {
-    private readonly User _user = user ?? throw new ArgumentNullException(nameof(user));
     private readonly ICollection<Stock> _listStocks = listStocks ?? throw new ArgumentNullException(nameof(listStocks));
 
-    // Method to get the stock price by stock
     public decimal GetStockPrice(Stock stock)
     {
         ArgumentNullException.ThrowIfNull(stock, "Stock not found.");
@@ -17,7 +15,6 @@ public class StockService(List<Stock> listStocks, User user)
         return stock.Price;
     }
 
-    // Method to get the stock price by symbol
     public decimal GetStockPriceBySymbol(string symbol)
     {
         var stockPrice = _listStocks.FirstOrDefault(s => s.Symbol == symbol)
@@ -26,7 +23,6 @@ public class StockService(List<Stock> listStocks, User user)
         return stockPrice.Price;
     }
 
-    // Method to get the stock price by name
     public decimal GetStockPriceByName(string name)
     {
         var stockPrice = _listStocks.FirstOrDefault(s => s.Name == name)
@@ -35,20 +31,20 @@ public class StockService(List<Stock> listStocks, User user)
         return stockPrice.Price;
     }
 
-    // Method to get the stock price by user
-    public ICollection<Stock> GetPortfolioByUser(User user)
+    public Portfolio GetPortfolioByUser(User user)
     {
         ArgumentNullException.ThrowIfNull(user, "User not found.");
 
-        var portfolio = user.GetPortfolio(user) ?? throw new Exception("Stocks not found.");
+        var portfolio = user.Portfolio ?? throw new Exception("Stocks not found.");
         return portfolio;
     }
 
-    // Get all stock prices by user and date
-    public ICollection<Stock> GetPortfolioByUserByDate(User user, DateTime date)
+    public ICollection<Stock> GetPortfolioByUserAndDate(User user, DateTime date)
     {
         ArgumentNullException.ThrowIfNull(user, "User not found.");
-        
-        return _user.GetPortfolio(user).Where(s => s.Timestamp.Date == date.Date).ToList();
+
+        var portfolio = user.Portfolio ?? throw new Exception("Stocks not found.");
+
+        return portfolio.Stocks.Where(s => s.Timestamp.Date == date.Date).ToList();
     }
 }
