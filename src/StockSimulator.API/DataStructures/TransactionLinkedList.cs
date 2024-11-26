@@ -1,5 +1,5 @@
 
-using StockSimulator.API.API.Entities;
+using StockSimulator.API.Entities;
 
 namespace StockSimulator.API.DataStructures
 {
