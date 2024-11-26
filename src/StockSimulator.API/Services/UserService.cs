@@ -27,8 +27,9 @@ public class UserService(UserRepository userRepository,
         ArgumentNullException.ThrowIfNull(user);
 
         ApplyTransactionByType(user, transaction);
+        user.AddTransaction(transaction);
 
-        _portfolioService.UpdateUserPortfolio(user, transaction);
+        _portfolioService.UpdateUserPortfolio(user);
         _userRepository.Update(user);
     }
 
