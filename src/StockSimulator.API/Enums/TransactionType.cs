@@ -1,24 +1,15 @@
 namespace StockSimulator.API.Enums
 {
-    /// <summary>
-    /// Representa os tipos de transação no sistema.
-    /// </summary>
     [Flags]
     public enum TransactionType
     {
-        /// <summary>
-        /// Nenhuma transação especificada.
-        /// </summary>
         None = 0,
-
-        /// <summary>
-        /// Compra de um ativo.
-        /// </summary>
         Buy = 1,
-
-        /// <summary>
-        /// Venda de um ativo.
-        /// </summary>
         Sell = 2,
+        Withdraw = 4,
+        Deposit = 8,
+
+        Decrease = Buy | Withdraw,   // Transactions that decrease the balance
+        Increase = Sell | Deposit    // Transaction that increase the balance
     }
 }
