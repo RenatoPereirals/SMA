@@ -23,7 +23,7 @@ public class UserService(UserRepository userRepository,
 
     public void ApplyTransactionToUser(Guid userId, Transaction transaction)
     {
-        var user = _userRepository.GetById(userId);
+        var user = _userRepository.GetUserById(userId);
         ArgumentNullException.ThrowIfNull(user);
 
         ApplyTransactionByType(user, transaction);
@@ -72,7 +72,7 @@ public class UserService(UserRepository userRepository,
         {
             decimal currentMarketValue = stock.Price * stock.Quantity;
 
-            decimal totalInvestment = _accountService.GetTotalInvestedInStock(user, stock);
+            decimal totalInvestment = _accountService.GetTotalInvestedInStock(user.UserId, stock);
 
             totalProfitOrLoss += currentMarketValue - totalInvestment;
         }
