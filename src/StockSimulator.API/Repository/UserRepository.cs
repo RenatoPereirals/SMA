@@ -11,7 +11,7 @@ public class UserRepository
         _users.Add(user);
     }
 
-    public User GetById(Guid userId)
+    public virtual User GetUserById(Guid userId)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException("The user ID cannot be empty.");
@@ -23,7 +23,7 @@ public class UserRepository
     {
         ArgumentNullException.ThrowIfNull(user);
 
-        var existingUser = GetById(user.UserId);
+        var existingUser = GetUserById(user.UserId);
         if (existingUser != null)
         {
             _users.Remove(existingUser);
@@ -36,7 +36,7 @@ public class UserRepository
         if (userId == Guid.Empty)
             throw new ArgumentException("The user ID cannot be empty.");
 
-        var user = GetById(userId);
+        var user = GetUserById(userId);
         if (user != null)
             _users.Remove(user);
     }
